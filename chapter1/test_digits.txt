@@ -1,0 +1,1 @@
+van a aparecer el 1, tres veces 11. el 2, cuatro veces 222, y el 5, siete veces 555555.
