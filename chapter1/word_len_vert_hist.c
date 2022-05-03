@@ -3,7 +3,7 @@
 // max word length
 #define MWL 100
 // max histogram height
-#define MHH 50
+#define MHH 50.0
 
 int main()
 {
@@ -42,7 +42,7 @@ int main()
     }
 
     float f;
-    f = 20.0/ma;
+    f = MHH/ma;
     if (f < 1) {
         int nv;
         for (i=0; i<=lw; i++) {
@@ -54,7 +54,7 @@ int main()
                     wls[i] = wls[i]*f;
             }
         }
-        ma = 20;
+        ma = (int) MHH;
     }
 
     int j;
