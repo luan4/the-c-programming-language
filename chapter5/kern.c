@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     }
 }
 
-/* mysort: sort v[left] •.. v[right] into increasing order*/
+/* mysort: sort v[left] ... v[right] into increasing order*/
 void mysort(void *v[], int left, int right,
         int (*comp)(void *, void*))
 {
