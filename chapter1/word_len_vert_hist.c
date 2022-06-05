@@ -3,7 +3,7 @@
 // max word length
 #define MWL 100
 // max histogram height
-#define MHH 50.0
+#define MHH 30.0
 
 int main()
 {
