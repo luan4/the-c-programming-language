@@ -4,7 +4,8 @@
 
 #define nelem(a) (sizeof(a) / sizeof(a[0]))
 
-int pow2(int exp) {
+int pow2(int exp)
+{
 	unsigned int res = 1;
 	res <<= exp;
 	return res;
@@ -16,34 +17,44 @@ struct node {
 	struct node *right;
 };
 
-struct node *find(struct node *n, char *s) {
-	if (strcmp(s, n->s) == 0)
+struct node *makenode(char *s, struct node *left, struct node *right)
+{
+	struct node *n = calloc(1, sizeof(struct node));
+	n->s = s;
+	n->left = left;
+	n->right = right;
+	return n;
+}
+
+struct node *find(struct node *n, char *s)
+{
+	int sc = strcmp(s, n->s);
+	if (sc == 0)
 		return n;
-	if (strcmp(s, n->s) < 0)
+	if (sc < 0)
 		return n->left ? find(n->left, s) : NULL;
 	return n->right ? find(n->right, s) : NULL;
 }
 
-void insert(struct node *n, char *s) {
-	if (strcmp(s, n->s) == 0)
+void insert(struct node *n, char *s)
+{
+	int sc = strcmp(s, n->s);
+	if (sc == 0)
 		return;
-	if (strcmp(s, n->s) < 0) {
+	if (sc < 0) {
 		if (n->left)
 			return insert(n->left, s);
-		struct node *new_node = calloc(1, sizeof(struct node));
-		new_node->s = s;
-		n->left = new_node;
+		n->left = makenode(s, NULL, NULL);
 		return;
 	}
 	if (n->right)
 		return insert(n->right, s);
-	struct node *new_node = calloc(1, sizeof(struct node));
-	new_node->s = s;
-	n->right = new_node;
+	n->right = makenode(s, NULL, NULL);
 	return;
 }
 
-void repr_tree(char *lines[], struct node *n, int d, int depth, int slen) {
+void repr_tree(char *lines[], struct node *n, int d, int depth, int slen)
+{
 	/*
 	* slen = 5 (iiiii)
 	* depth = 4
@@ -62,10 +73,11 @@ void repr_tree(char *lines[], struct node *n, int d, int depth, int slen) {
 	* (2^(depth-d)*(slen+1) - (slen-1))/2 - 1
 	*
 	*/
-	if (d >= depth)
+	if (d > depth)
 		return;
-	int c = slen*pow2(depth) - 1;
-	while (lines[d][c] == ' ' && c > 0)
+	int l = d - 1;
+	int c = strlen(lines[0]) - 1;
+	while (lines[l][c] == ' ' && c > 0)
 		c--;
 	if (c == 0)
 		c -= (pow2(depth - d)*(slen+1) - (slen-1))/2 - 1;
@@ -73,19 +85,19 @@ void repr_tree(char *lines[], struct node *n, int d, int depth, int slen) {
 	int i = 0;
 	if (n)
 		while (i < slen && n->s[i]) {
-			lines[d][c+i] = n->s[i];
+			lines[l][c+i] = n->s[i];
 			i++;
 		}
 	while (i < slen) {
-		lines[d][c+i] = '_';
+		lines[l][c+i] = '.';
 		i++;
 	}
 	repr_tree(lines, n ? n->left : NULL, d + 1, depth, slen);
 	repr_tree(lines, n ? n->right : NULL, d + 1, depth, slen);
 }
 
-void print_tree(struct node *n, int depth, int slen) {
-	// create empty box
+void print_tree(struct node *n, int depth, int slen)
+{
 	int line_memb = slen*pow2(depth) + 1;
 	char *lines[depth];
 	for (int l=0; l<depth; l++) {
@@ -94,7 +106,7 @@ void print_tree(struct node *n, int depth, int slen) {
 			lines[l][c] = ' ';
 		lines[l][line_memb-1] = '\0';
 	}
-	// fill with nodes
+
 	repr_tree(lines, n, 1, depth, slen);
 	for (int l=0; l < depth; l++) {
 		printf("%s", lines[l]);
@@ -107,11 +119,9 @@ int main()
 {
 	int depth = 5;
 	int slen = 5;
-	struct node n = {"jarro", NULL, NULL};
-	//print_tree(&n, depth, slen);
-	//char *inserciones[] = {"f", "h", "a", "b", "r", "s", "q", "w", "m", "x", "j", "k", "c", "t", "p", "s"};
-	char *inserciones[] = {"foca", "roca", "antes", "mora", "cosa", "xilo", "rico"};
-	for (int i=0; i < nelem(inserciones); i++)
-		insert(&n, inserciones[i]);
-	print_tree(&n, depth, slen);
+	struct node *n = makenode("jarro", NULL, NULL);
+	char *insrt[] = {"foca", "roca", "antes", "mora", "cosa", "xilo", "rico"};
+	for (int i=0; i < nelem(insrt); i++)
+		insert(n, insrt[i]);
+	print_tree(n, depth, slen);
 }
