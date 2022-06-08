@@ -28,9 +28,9 @@ void printcounts(struct cnode *n)
 {
 	if (n->left)
 		printcounts(n->left);
+	printf("%s %d\n", n->s, n->count);
 	if (n->right)
 		printcounts(n->right);
-	printf("%s %d\n", n->s, n->count);
 }
 
 int inccnode(struct cnode *n, char *s)
@@ -75,8 +75,10 @@ char *getword(int lim)
 
 int main()
 {
-	char *w;
-	struct cnode *t = makecnode("END", 0, NULL, NULL);
+	char *w = getword(MAXWORD);
+	if (!w)
+		return 0;
+	struct cnode *t = makecnode(w, 1, NULL, NULL);
 	while (w = getword(MAXWORD))
 		if (inccnode(t, w) != 1)
 			free(w);
