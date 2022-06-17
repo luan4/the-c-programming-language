@@ -1,14 +1,23 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <regex.h>
+
+#define CLR_YELLOW  "\x1b[33m"
+#define CLR_GRAY   "\x1b[90m"
+#define CLR_CYAN    "\x1b[36m"
+#define CLR_RESET   "\x1b[0m"
 
 int all = 0;
 int size = 0;
+int ign = 0;
+regex_t ignore;
 
 // apply fnc to all files in dir
 void dirwalk(char *dir, void (*fnc)(char *))
@@ -36,25 +45,24 @@ void dirwalk(char *dir, void (*fnc)(char *))
 
 void print_file(char *s, int indent, long unsigned siz, int isdir)
 {
-	if (indent == 0) {
-		printf("%s\n", s);
-		return;
-	}
-
+	int first = indent == 0 ? 1 : 0;
+	printf(CLR_GRAY);
 	while (--indent > 0)
 		printf(" |  ");
-	printf(" \\__%s", s);
-	if (isdir)
-		putchar('/');
+	if (!first)
+		printf(" \\_ ");
+	printf(isdir ? CLR_CYAN"%s/" : CLR_RESET"%s", s);
 	if (siz && !isdir)
-		printf("  %lu", siz);
-
-	putchar('\n');
+		printf(CLR_YELLOW"  %lu", siz);
+	printf(CLR_RESET"\n");
 }
 
 void tree(char *path)
 {
 	static int indent = 0;
+
+	if (ign && regexec(&ignore, path, 0, NULL, 0) == 0)
+		return;
 
 	struct stat stbuf;
 	if (stat(path, &stbuf) != 0) {
@@ -81,7 +89,7 @@ void tree(char *path)
 int main(int argc, char *argv[])
 {
 	int opt;
-	while((opt = getopt(argc, argv, "as")) != -1)
+	while((opt = getopt(argc, argv, "asi:")) != -1)
 		switch (opt) {
 		case 'a':
 			all = 1;
@@ -89,8 +97,16 @@ int main(int argc, char *argv[])
 		case 's':
 			size = 1;
 			break;
+		case 'i':
+			if (regcomp(&ignore, optarg, 0) != 0) {
+				perror("tree");
+				return 1;
+			}
+			ign = 1;
+			break;
 		default:
-			fprintf(stderr, "Usage: %s [-a] [-s] [path]...", argv[0]);
+			fprintf(stderr, "Usage: %s [-a] [-s] [path]...",
+				argv[0]);
 		}
 
 	argc -= optind - 1;
