@@ -24,8 +24,8 @@ int main()
 	memstate();
 	printf("------------------------------------------\n");
 
-	printf( "allocm returns at least %d bytes, to serve\n"
-		"all alignment purposes simultaneously.\n"
+	printf( "allocm returns a multiple of %d bytes, to satisfy\n"
+		"all alignment requirements simultaneously.\n"
 		"it also uses up an extra %d bytes to keep\n"
 		"track of the used space\n",
 		sizeof(Header), sizeof(Header));
@@ -47,7 +47,7 @@ int main()
 	printf("------------------------------------------\n");
 
 	printf( "allocm starts searching for an appropriate block\n"
-		"after the block shown marked with the asterisk\n"
+		"after the block marked with the asterisk\n"
 		"so if we now ask for 40 bytes, they will be taken\n"
 		"from the last block\n");
 
